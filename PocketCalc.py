@@ -23,6 +23,8 @@ SQUARE='x'+u'\u00B2'
 ROOT=u'\u221A'+'x'
 MOD='MOD'
 PI=u'\u03C0'
+PERCENT="%"
+DELTA_CHANG=u'\u0394'+"%"
 
 DISPLAY_MODE_NORMAL=0
 DISPLAY_MODE_FUNC=1
@@ -32,10 +34,10 @@ def b3(txt):
     return [txt,txt,txt]
 
 keys= [
-    [['', '', ''],      [ROOT,'A', SQUARE], [E,'B',''],     [POW10,'C',''], [POW,'D',''],   ['1/x','E',''], ['7','',''], ['8','',''], ['9','',''], [DIVIDE, '','']],
-    [['', '', ''],      ['avg','a','sdev'], ['MOD','b',PI], ['sin','c',''], ['cos','d',''], ['tan','e',''],  ['4','',''], ['5','',''], ['6','',''], ['*', '','']],
-    [['', '', ''],      ['','',''],         ['','',''],     ['>>','','<<'], ['<>','','Rnd#'],   [DOWN,'',''],   ['1','',''], ['2','',''], ['3','',''], ['-', '','']],
-    [b3('Quit'),        b3('Clear'),        b3('Func'),     b3('Alt'),      ['','',''],     ['Exe','',''],  ['0','',''], ['.','',''], ['-','',''], ['+', '','']],
+    [[ROOT,'A', SQUARE],[E,'B',''],     [POW10,'C',''], [POW,'D',PERCENT],  ['1/x','E',DELTA_CHANG],    ['', '', ''],   ['7','',''], ['8','',''], ['9','',''], [DIVIDE, '','']],
+    [['avg','a','sdev'],['MOD','b',PI], ['sin','c',''], ['cos','d',''],     ['tan','e',''],             ['', '', ''],   ['4','',''], ['5','',''], ['6','',''], ['*', '','']],
+    [b3('Clear'),       ['','',''],     ['>>','','<<'], ['<>','','Rnd#'],   [DOWN,'',''],               ['', '', ''],   ['1','',''], ['2','',''], ['3','',''], ['-', '','']],
+    [b3('Quit'),        b3('Func'),     b3('Alt'),      ['','',''],         ['','',''],                 ['Exe','',''],  ['0','',''], ['.','',''], ['-','',''], ['+', '','']],
 ]
 
 class UserInterface(Frame):
@@ -252,12 +254,13 @@ class AppLogic():
             self.view.showFunc()
     def opButton(self, op, row, column):
         #TODO: if number is on input, processes it here
-        op = keys[row][column][self.mode]
+        if row!=None and column!=None:
+            op = keys[row][column][self.mode]
         if op in ['Rnd#', PI]:
             self.cmdAdditiveMath(op)
         if op in [E, "log", ROOT, SQUARE, "log2", "log10", POW10, "1/x", "sin", "cos", "tan"]:
             self.cmdUnaryMath(op)
-        elif op in [POW, MOD]:
+        elif op in [POW, MOD, PERCENT, DELTA_CHANG]:
             self.cmdBinaryMath(op)
         elif len(op)==1 and (("a" <= op and op <= 'z') or ("A" <= op and op <= 'Z')):
             key = op.upper()
@@ -281,6 +284,7 @@ class AppLogic():
                 ">>": self.cmdRotateRight,
                 "<<": self.cmdRotateLeft,
                 DIVIDE: self.cmdDiv,
+                "/": self.cmdDiv,
                 "*": self.cmdTimes,
                 "-": self.cmdMinus,
                 "+": self.cmdPlus,
@@ -341,7 +345,7 @@ class AppLogic():
             self.clearInput()
         except ValueError:
             #process as command
-            self.opButton(raw)
+            self.opButton(raw, None, None)
         #print("stack: {}".format(self.stack))
     
     #mark - Calculation Actions
@@ -446,8 +450,12 @@ class AppLogic():
             elif cmd==POW:
                 ans = math.pow(y, x)
             elif cmd==MOD:
-                #ans = y % x
-                ans = fmod(x, y)
+                ans = y % x
+                #ans = fmod(x, y)
+            elif cmd==PERCENT:
+                ans = x * (y / 100.0)
+            elif cmd==DELTA_CHANG:
+                ans = (x/y * 100.0) - 100.0
             elif cmd=="foo":
                 pass
             self.stack.append(ans)

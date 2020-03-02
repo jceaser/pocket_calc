@@ -1,14 +1,17 @@
 import unittest
 from PocketCalc import AppLogic
 
-#DOWN=u'\u2193'  # down arrow
-#DIVIDE=u'\u00f7'    #divide symbol
+DOWN=u'\u2193'  # down arrow
+DIVIDE=u'\u00f7'    #divide symbol
 POW10="10"+u'\u02E3'
 POW="y"+u'\u02E3'
-SQUARE=u'\u221A'+'x'
-ROOT=u'\u221A'+'x'
 E="e"+u'\u02E3'
+SQUARE='x'+u'\u00B2'
+ROOT=u'\u221A'+'x'
 MOD='MOD'
+PI=u'\u03C0'
+PERCENT="%"
+DELTA_CHANG=u'\u0394'+"%"
 
 
 class InputStub:
@@ -47,7 +50,12 @@ class TestPocketCalc(unittest.TestCase):
         app.stack = []
         app.processLine("2:2 6:3 +:1 *:3")
         self.assertEqual(app.stack, [288.0])
-    
+
+        # simulate the delta changed function
+        app.stack = []
+        app.processLine("100.0:2 15.76 14.12 <> / * <> -")
+        self.assertEqual(app.stack, [-10.406091370558386])
+
     def test_stack(self):
         app=AppLogic(ViewStub())
         
@@ -113,6 +121,8 @@ class TestPocketCalc(unittest.TestCase):
         app=AppLogic(ViewStub())
         self.binaryWrapper(app, 2, 3, POW, [9.0])
         self.binaryWrapper(app, 2, 3, MOD, [1])
+        self.binaryWrapper(app, 14.12,15.76, DELTA_CHANG,[-10.406091370558386])
+        #[-10.4061])
 def main():
     unittest.main()
 
